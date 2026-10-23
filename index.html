@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Datenblick · CSV-Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+    <header class="page-header">
+        <a class="brand" href="index.html"><span class="brand-icon" aria-hidden="true">▥</span> Datenblick</a>
+        <span class="badge">Lokal · ohne Cloud</span>
+    </header>
+    <section class="intro">
+        <h1>Healthy<span>board</span></h1>
+    </section>
+    <section class="glass upload-card" aria-labelledby="upload-title">
+        <div><span class="step">01 / DATENQUELLE</span><h2 id="upload-title">Was möchtest du entdecken?</h2><p>Komma oder Semikolon · UTF-8 · maximal 2 MB</p></div>
+        <p class="error" id="fehler" role="alert" hidden></p>
+        <form id="upload-form" novalidate>
+            <label for="csv">Deine CSV-Datei</label>
+            <input id="csv" type="file" name="csv" accept=".csv,text/csv" required>
+            <button type="submit">Datei auswerten <span aria-hidden="true">↗</span></button>
+        </form>
+        <div class="example-row"><span>Erst einmal ausprobieren?</span><form id="example-form"><button class="secondary" type="submit" name="beispiel" value="1">Beispieldaten laden</button></form></div>
+        <p class="note">Die Nieren-Beispieldaten sind vollständig <strong>erfunden</strong>, nur an die Spalten des UCI Chronic Kidney Disease-Datensatzes angelehnt und keine echten Patientendaten. Keine medizinischen Schlussfolgerungen ableiten.</p>
+    </section>
+    <section id="analyse" class="analysis" aria-labelledby="analysis-title" hidden>
+        <div class="section-heading"><div><span class="step">02 / AUSWERTUNG</span><h2 id="analysis-title">Deine Daten auf einen Blick</h2><p id="quelle" class="source"></p></div><span class="badge success">Analyse bereit</span></div>
+        <div class="metrics">
+            <article class="glass metric"><span>Datenzeilen</span><strong id="wert-zeilen"></strong><small>ohne Kopfzeile</small></article>
+            <article class="glass metric"><span>Spalten</span><strong id="wert-spalten"></strong><small>erkannte Merkmale</small></article>
+            <article class="glass metric"><span>Fehlende Werte</span><strong id="wert-fehlend"></strong><small>leere Zellen oder ?</small></article>
+        </div>
+        <section class="glass panel"><h3>Wie vollständig sind die Daten?</h3><p>Fehlende Werte pro Spalte · Anteil an allen Datenzeilen</p><div id="fehlwerte" class="missing-grid"></div></section>
+        <div class="section-heading"><div><h3>Zahlen &amp; Verteilungen</h3><p>Min, Max und Mittelwert ohne fehlende Werte. Jede Spalte hat eine eigene Skala.</p></div></div>
+        <div id="diagramme" class="charts"></div><div id="kategorien" class="categories"></div>
+        <section class="glass panel"><h3>Ein Blick in die Zeilen</h3><p>Die ersten 10 Datenzeilen · „—“ steht für einen fehlenden Wert</p><div class="table-scroll" tabindex="0" role="region" aria-label="Datenvorschau, horizontal scrollbar"><table id="vorschau"></table></div></section>
+    </section>
+    <div class="preview-grid" id="startvorschau"><article><span class="preview-icon" aria-hidden="true">▤</span><h3>Struktur verstehen</h3><p>Zeilen, Spalten und ein erster Blick in deine Daten.</p></article><article><span class="preview-icon" aria-hidden="true">◒</span><h3>Lücken erkennen</h3><p>Fehlende Werte werden auf einen Blick sichtbar.</p></article><article><span class="preview-icon" aria-hidden="true">▥</span><h3>Muster entdecken</h3><p>Verteilungen, Kennzahlen und Häufigkeiten.</p></article></div>
+    <footer><span>Datenblick · Ein lokales Lernprojekt</span><p>Datenschutz: CSV-Dateien werden ausschließlich in deinem Browser verarbeitet und nicht hochgeladen. Keine dauerhafte Speicherung, Cookies, Analyse-Dienste oder externen Schriftarten. Alle Assets kommen vom selben Server. Beim Seitenabruf erhält der Hosting-Anbieter Netlify technisch notwendige Verbindungsdaten.</p></footer>
+</main>
+<script src="app.js" defer></script>
+</body>
+</html>
