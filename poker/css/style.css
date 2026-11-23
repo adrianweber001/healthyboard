@@ -27,8 +27,12 @@
 }
 body.four-color { --diamond: #1f6fd1; --club: #1c8a3e; }
 
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* Kein Zoomen (Pinch, Doppeltippen) und kein seitliches Wischen – nur senkrecht scrollen. */
+html, body { touch-action: pan-y; overscroll-behavior: none; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+button, .card, .matrix button { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+input[type=range] { touch-action: none; }
 body {
   margin: 0; min-height: 100vh; color: var(--text);
   background: radial-gradient(ellipse at 50% -10%, #1d3a2b 0, transparent 60%), var(--bg);
