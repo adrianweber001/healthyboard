@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Coach · AW Poker Pro</title>
+  <meta name="description" content="AW Poker Pro Coach – Heads-up-Training mit Live-Feedback, Starthand-Matrix, Quiz und Fehler-Statistik.">
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="coach.css">
+  <script src="js/nozoom.js"></script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <a class="header-brand" href="/" title="AW Poker Pro">
+        <span class="brand"><b>AW</b> Poker Pro</span><span class="brand-tag" data-i18n="app.coach">Coach</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="#training" data-view="training" data-i18n="nav.training">Training</a>
+        <a href="#matrix" data-view="matrix" data-i18n="nav.matrix">Starthände</a>
+        <a href="#quiz" data-view="quiz" data-i18n="nav.quiz">Quiz</a>
+        <a href="#stats" data-view="stats" data-i18n="nav.stats">Statistik</a>
+        <a href="/" class="nav-back" data-i18n="nav.back">Zurück zu Poker Pro</a>
+      </nav>
+      <div class="header-tools">
+        <div class="lang-switch" id="lang-switch" role="group" aria-label="Sprache / Language / Język">
+          <button data-lang="de">DE</button><button data-lang="en">EN</button><button data-lang="pl">PL</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main" id="main">
+      <!-- TRAINING -->
+      <section class="view" id="view-training">
+        <div class="training">
+          <div class="table-col">
+            <div class="table-wrap">
+              <div class="felt" id="felt">
+                <div class="seat pos-top" id="seat-1">
+                  <div class="seat-cards" id="hole-1"></div>
+                  <div class="seat-plate"><span class="avatar" data-i18n="seat.bot">KI</span><span class="seat-text"><span class="seat-name" data-i18n="seat.bot">KI</span><span class="seat-stack" id="stack-1">200</span></span><span class="dealer" hidden>D</span></div>
+                  <div class="seat-bet empty" id="bet-1">0</div>
+                  <div class="bubble" id="bubble-1" hidden></div>
+                </div>
+                <div class="felt-center">
+                  <div class="street" id="street">Preflop</div>
+                  <div class="board" id="board"></div>
+                  <div class="pot" id="pot"></div>
+                </div>
+                <div class="seat pos-bottom" id="seat-0">
+                  <div class="seat-bet empty" id="bet-0">0</div>
+                  <div class="bubble" id="bubble-0" hidden></div>
+                  <div class="seat-cards" id="hole-0"></div>
+                  <div class="seat-plate"><span class="avatar me" aria-hidden="true">♠</span><span class="seat-text"><span class="seat-name" data-i18n="seat.you">Du</span><span class="seat-stack" id="stack-0">200</span></span><span class="dealer" hidden>D</span></div>
+                  <div class="made-hand" id="made-hand"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="controls" id="controls">
+              <div class="result" id="result" hidden></div>
+              <div class="action-buttons" id="action-main">
+                <button class="btn btn-fold" id="btn-fold" title="F">Fold</button>
+                <button class="btn btn-call" id="btn-call" title="C">Check</button>
+                <button class="btn btn-raise" id="btn-raise" title="R">Raise</button>
+              </div>
+              <div class="raise-box" id="raise-box">
+                <div class="presets" id="presets">
+                  <button class="btn btn-sm" data-frac="0.33" data-i18n="preset.third">⅓ Pot</button>
+                  <button class="btn btn-sm" data-frac="0.5" data-i18n="preset.half">½ Pot</button>
+                  <button class="btn btn-sm" data-frac="0.66" data-i18n="preset.twothirds">⅔ Pot</button>
+                  <button class="btn btn-sm" data-frac="1" data-i18n="preset.pot">Pot</button>
+                  <button class="btn btn-sm" data-frac="all" data-i18n="preset.allin">All-in</button>
+                </div>
+                <div class="raise-input">
+                  <input type="range" id="raise-slider" aria-label="Bet">
+                  <input type="number" id="raise-amount" inputmode="numeric" aria-label="Bet">
+                </div>
+              </div>
+              <div class="row-2">
+                <button class="btn btn-block" id="btn-tip" title="T">💡 <span data-i18n="btn.tip">Tipp vom Coach</span></button>
+                <button class="btn btn-primary btn-block" id="btn-next" hidden><span data-i18n="btn.next">Nächste Hand</span> →</button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="side-col">
+            <div class="panel">
+              <div class="panel-head"><h2 data-i18n="app.coach">Coach</h2><span class="pill" id="hand-no">#0</span></div>
+              <div id="coach-content" class="coach-content"></div>
+            </div>
+            <details class="panel collapsible">
+              <summary><h2 data-i18n="log.title">Verlauf dieser Hand</h2></summary>
+              <ol class="hand-log" id="hand-log"></ol>
+            </details>
+            <details class="panel collapsible">
+              <summary><h2 data-i18n="set.title">Einstellungen</h2></summary>
+              <div class="settings">
+                <div class="field"><span class="muted" data-i18n="set.level">Gegner</span>
+                  <div class="segmented-wide" id="set-level">
+                    <button data-level="easy" data-i18n="level.easy">Locker</button>
+                    <button data-level="normal" data-i18n="level.normal">Solide</button>
+                    <button data-level="hard" data-i18n="level.hard">Aggressiv</button>
+                  </div>
+                  <small class="muted" id="level-desc"></small>
+                </div>
+                <label class="switch"><input type="checkbox" id="set-live"><span data-i18n="set.live">Live-Feedback</span></label>
+                <label class="switch"><input type="checkbox" id="set-reveal"><span data-i18n="set.reveal">Gegnerkarten zeigen</span></label>
+                <label class="switch"><input type="checkbox" id="set-madehand"><span data-i18n="set.madeHand">Aktuelle Hand anzeigen</span></label>
+                <div class="field"><span class="muted" data-i18n="set.speed">Tempo der KI</span>
+                  <div class="segmented-wide" id="set-speed">
+                    <button data-speed="400" data-i18n="speed.fast">Schnell</button>
+                    <button data-speed="800" data-i18n="speed.normal">Normal</button>
+                    <button data-speed="1400" data-i18n="speed.slow">Langsam</button>
+                  </div>
+                </div>
+                <button class="btn btn-danger btn-block" id="btn-newgame" data-i18n="set.newGame">Neues Spiel</button>
+              </div>
+            </details>
+          </aside>
+        </div>
+      </section>
+
+      <!-- STARTHÄNDE -->
+      <section class="view" id="view-matrix" hidden></section>
+
+      <!-- QUIZ -->
+      <section class="view" id="view-quiz" hidden>
+        <div class="tabs tabs-4" id="quiz-modes"></div>
+        <div class="quiz-score" id="quiz-score"></div>
+        <div class="panel quiz-card" id="quiz-card"></div>
+      </section>
+
+      <!-- STATISTIK -->
+      <section class="view" id="view-stats" hidden></section>
+    </main>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
