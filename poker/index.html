@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hold'em Coach</title>
+  <meta name="description" content="Texas Hold'em lernen: Heads-up gegen eine KI spielen, nach jeder Entscheidung Feedback vom Coach bekommen, Handrankings, Starthände und Quiz.">
+  <meta name="theme-color" content="#0d1a14">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#spielen"><span class="brand-icon" aria-hidden="true">♠</span> Hold'em Coach</a>
+    <nav class="tabs" role="tablist" aria-label="Bereiche">
+      <button role="tab" data-tab="spielen" aria-selected="true">Spielen</button>
+      <button role="tab" data-tab="lernen" aria-selected="false">Lernen</button>
+      <button role="tab" data-tab="quiz" aria-selected="false">Quiz</button>
+      <button role="tab" data-tab="statistik" aria-selected="false">Statistik</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- SPIELEN -->
+    <section id="tab-spielen" class="tab-panel" role="tabpanel">
+      <div class="play-layout">
+        <div class="table-col">
+          <div class="table" id="table">
+            <div class="seat seat-top" id="seat-1">
+              <div class="seat-info">
+                <span class="seat-name">KI</span>
+                <span class="dealer" hidden>D</span>
+                <span class="seat-stack">200</span>
+              </div>
+              <div class="hole" id="hole-1"></div>
+              <div class="bubble" id="bubble-1" hidden></div>
+              <div class="bet empty" id="bet-1"></div>
+            </div>
+
+            <div class="center">
+              <div class="street-label" id="street-label">Preflop</div>
+              <div class="board" id="board"></div>
+              <div class="pot" id="pot">Pot: 0</div>
+            </div>
+
+            <div class="seat seat-bottom" id="seat-0">
+              <div class="bet empty" id="bet-0"></div>
+              <div class="bubble" id="bubble-0" hidden></div>
+              <div class="hole" id="hole-0"></div>
+              <div class="seat-info">
+                <span class="seat-name">Du</span>
+                <span class="dealer" hidden>D</span>
+                <span class="seat-stack">200</span>
+              </div>
+              <div class="made-hand" id="made-hand"></div>
+            </div>
+          </div>
+
+          <div class="actions" id="actions">
+            <div class="result-banner" id="result-banner" hidden></div>
+            <div class="action-main">
+              <button class="btn btn-fold" id="btn-fold" title="Taste F">Fold</button>
+              <button class="btn btn-call" id="btn-call" title="Taste C">Check</button>
+              <button class="btn btn-raise" id="btn-raise" title="Taste R">Raise</button>
+            </div>
+            <div class="raise-box" id="raise-box">
+              <div class="presets" id="presets">
+                <button class="chip-btn" data-frac="0.33">⅓ Pot</button>
+                <button class="chip-btn" data-frac="0.5">½ Pot</button>
+                <button class="chip-btn" data-frac="0.66">⅔ Pot</button>
+                <button class="chip-btn" data-frac="1">Pot</button>
+                <button class="chip-btn" data-frac="all">All-in</button>
+              </div>
+              <div class="raise-input">
+                <input type="range" id="raise-slider" aria-label="Einsatzhöhe">
+                <input type="number" id="raise-amount" inputmode="numeric" aria-label="Einsatz in Chips">
+              </div>
+            </div>
+            <div class="action-extra">
+              <button class="btn btn-ghost" id="btn-tip" title="Taste T">💡 Tipp vom Coach</button>
+              <button class="btn btn-next" id="btn-next" hidden>Nächste Hand ▶</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="coach-col">
+          <div class="panel coach-panel" id="coach-panel">
+            <div class="panel-head">
+              <h2>Coach</h2>
+              <span class="badge" id="hand-no">Hand #0</span>
+            </div>
+            <div id="coach-content" class="coach-content">
+              <p class="muted">Spiel deine erste Hand. Mit <strong>💡 Tipp</strong> siehst du vor deiner Entscheidung, was der Coach machen würde. Nach jeder Aktion bekommst du Feedback.</p>
+            </div>
+          </div>
+
+          <details class="panel" id="log-panel">
+            <summary><h2>Verlauf dieser Hand</h2></summary>
+            <ol class="hand-log" id="hand-log"></ol>
+          </details>
+
+          <details class="panel settings" id="settings-panel">
+            <summary><h2>Einstellungen</h2></summary>
+            <label class="field">Gegner
+              <select id="set-level"></select>
+            </label>
+            <p class="muted small" id="level-desc"></p>
+            <label class="toggle"><input type="checkbox" id="set-live" checked> Live-Feedback nach jeder Aktion</label>
+            <label class="toggle"><input type="checkbox" id="set-reveal" checked> Gegnerkarten nach jeder Hand zeigen</label>
+            <label class="toggle"><input type="checkbox" id="set-madehand" checked> Meine aktuelle Hand anzeigen</label>
+            <label class="toggle"><input type="checkbox" id="set-fourcolor"> 4-Farben-Deck (♦ blau, ♣ grün)</label>
+            <label class="field">Tempo der KI
+              <select id="set-speed">
+                <option value="400">Schnell</option>
+                <option value="800" selected>Normal</option>
+                <option value="1400">Langsam</option>
+              </select>
+            </label>
+            <button class="btn btn-ghost" id="btn-newgame">Neues Spiel (Stacks zurücksetzen)</button>
+          </details>
+        </aside>
+      </div>
+    </section>
+
+    <!-- LERNEN -->
+    <section id="tab-lernen" class="tab-panel" role="tabpanel" hidden>
+      <nav class="subnav" id="learn-nav" aria-label="Lernthemen"></nav>
+      <div id="learn-content"></div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="tab-quiz" class="tab-panel" role="tabpanel" hidden>
+      <nav class="subnav" id="quiz-nav" aria-label="Quiz-Modus"></nav>
+      <div class="quiz-score" id="quiz-score"></div>
+      <div class="panel quiz-card" id="quiz-card"></div>
+    </section>
+
+    <!-- STATISTIK -->
+    <section id="tab-statistik" class="tab-panel" role="tabpanel" hidden>
+      <div id="stats-content"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Hold'em Coach – Lern-App, kein Echtgeld. Der Coach nutzt vereinfachte Regeln (Equity, Pot Odds, Starthand-Rangliste) und ist kein perfekter Solver.
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
