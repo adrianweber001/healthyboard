@@ -17,6 +17,8 @@ let botTimer = null;
 let showTip = false;
 let lastFeedback = null;
 let notice = '';
+let foldArmed = false; // Zweiter Klick nötig, wenn Check gratis wäre
+let foldTimer = null;
 
 export function initTable(appSettings) {
   settings = appSettings;
@@ -47,6 +49,7 @@ function setupSettings() {
     clearTimeout(botTimer);
     resetStacks(game);
     newHand();
+
   });
   document.body.classList.toggle('four-color', settings.fourColor);
 }
@@ -57,7 +60,18 @@ function persist() {
 }
 
 function setupActions() {
-  $('#btn-fold').addEventListener('click', () => heroAct({ type: 'fold' }));
+  $('#btn-fold').addEventListener('click', () => {
+    const l = legalActions(game, HERO);
+    if (l.canCheck && !foldArmed) {
+      // Folden ist erlaubt, aber hier verschenkt es den Pot: zur Sicherheit zweimal drücken
+      foldArmed = true;
+      $('#btn-fold').textContent = 'Wirklich folden? Check ist gratis';
+      clearTimeout(foldTimer);
+      foldTimer = setTimeout(() => { foldArmed = false; $('#btn-fold').textContent = 'Fold'; }, 3000);
+      return;
+    }
+    heroAct({ type: 'fold' });
+  });
   $('#btn-call').addEventListener('click', () => {
     const l = legalActions(game, HERO);
     heroAct({ type: l.canCheck ? 'check' : 'call' });
@@ -89,9 +103,11 @@ function setupActions() {
   }));
 
   document.addEventListener('keydown', (e) => {
-    if (e.target.matches('input, select, textarea') || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches('input, select, textarea') || e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
     if ($('#tab-spielen').hidden) return;
     const k = e.key.toLowerCase();
+    // Enter auf einem Button löst der Browser selbst aus – sonst würde doppelt geklickt
+    if (k === 'enter' && e.target.matches('button, summary, a')) return;
     if (k === 'f' && !$('#btn-fold').disabled) $('#btn-fold').click();
     else if (k === 'c' && !$('#btn-call').disabled) $('#btn-call').click();
     else if (k === 'r' && !$('#btn-raise').disabled) $('#btn-raise').click();
@@ -108,7 +124,10 @@ function updateRaiseLabel() {
 }
 
 function newHand() {
+  if (game.hand && !game.hand.over) return; // nie eine laufende Hand überschreiben
   clearTimeout(botTimer);
+  foldArmed = false;
+  clearTimeout(foldTimer);
   if (isGameOver(game)) {
     const heroBroke = game.players[HERO].stack <= 0;
     notice = `<div class="coach-card ${heroBroke ? 'bad' : 'good'}"><h3>${heroBroke ? 'Du bist pleite 😬' : 'Du hast alle Chips der KI gewonnen! 🏆'}</h3><p class="small" style="margin:4px 0">Neues Spiel: beide starten wieder mit 200 Chips.</p></div>`;
@@ -160,6 +179,8 @@ function heroAct(action) {
     pending = { ctx, rec: recommend(ctx) };
   }
   const { ctx, rec } = pending;
+  foldArmed = false;
+  clearTimeout(foldTimer);
   if (action.type === 'raise') {
     const l = ctx.legal;
     action.amount = Math.max(l.minRaiseTo, Math.min(l.maxRaiseTo, Math.round(action.amount || l.minRaiseTo)));
@@ -255,7 +276,7 @@ function render() {
   }
   const boardHl = best ? new Set(winners.flatMap((w) => best[w])) : null;
   $('#board').innerHTML = Array.from({ length: 5 }, (_, k) => cardHTML(hand.board[k], { hl: boardHl && boardHl.has(hand.board[k]) })).join('');
-  $('#pot').textContent = `Pot: ${totalPot(hand)}`;
+  $('#pot').textContent = over ? `Pot: ${hand.result.pot} (ausgezahlt)` : `Pot: ${totalPot(hand)}`;
   $('#street-label').textContent = over ? (hand.result.type === 'showdown' ? 'Showdown' : 'Hand beendet') : STREET_NAMES[hand.street];
 
   const madeEl = $('#made-hand');
@@ -281,6 +302,7 @@ function renderActions() {
   }
   const l = legalActions(game, HERO);
   $('#btn-fold').disabled = !l.canFold;
+  if (!foldArmed) $('#btn-fold').textContent = 'Fold';
   $('#btn-call').disabled = false;
   $('#btn-call').textContent = l.canCheck ? 'Check' : `Call ${l.toCall}${l.toCall >= game.players[HERO].stack ? ' (All-in)' : ''}`;
   $('#btn-raise').disabled = !l.canRaise;

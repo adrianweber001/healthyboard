@@ -6,7 +6,7 @@ import { equityVsRange } from '../js/equity.js';
 import { combosOf, RANKED, topRange, handPercentile } from '../js/ranges.js';
 import { createGame, startHand, act, legalActions, START_STACK } from '../js/game.js';
 import { botDecide } from '../js/bot.js';
-import { buildContext, recommend, judge } from '../js/coach.js';
+import { buildContext, recommend, judge, countOuts, estimateRange } from '../js/coach.js';
 
 const ev = (s) => evaluate(parseCards(s));
 
@@ -107,4 +107,67 @@ test('Engine: Min-Raise, All-in und Rückgabe', () => {
   assert.ok(hand.over);
   assert.equal(hand.board.length, 5);
   assert.equal(game.players[0].stack + game.players[1].stack, 400);
+});
+
+test('Fold ist immer möglich, auch wenn Check gratis wäre', () => {
+  const game = createGame(['A', 'B']);
+  const hand = startHand(game);
+  act(game, { type: 'call' }); // Small Blind limpt
+  const bb = hand.toAct;
+  const legal = legalActions(game);
+  assert.ok(legal.canCheck && legal.canFold);
+  const ctx = buildContext(game, bb);
+  const rec = recommend(ctx, { iters: 200 });
+  const j = judge(rec, { type: 'fold' }, ctx);
+  assert.equal(j.verdict, 'bad');
+  assert.equal(j.mistake, 'Fold statt Check');
+  act(game, { type: 'fold' });
+  assert.ok(hand.over);
+  assert.equal(hand.result.winners[0], 1 - bb);
+  assert.equal(game.players[0].stack + game.players[1].stack, 2 * START_STACK);
+});
+
+test('Outs: Board-Draws und fertige Hände zählen nicht', () => {
+  assert.equal(countOuts(parseCards('As Kd'), parseCards('2h 5h 9h Jh')).outs, 0, 'Flush-Draw nur auf dem Board');
+  assert.equal(countOuts(parseCards('Qs Qd'), parseCards('Qh 7c 2s')).outs, 0, 'Set ist kein Draw');
+  const fd = countOuts(parseCards('Ah 7h'), parseCards('Kh 9h 2c'));
+  assert.equal(fd.outs, 9);
+  assert.equal(fd.kind, 'Flush-Draw');
+  const oesd = countOuts(parseCards('9c 8d'), parseCards('Th 7s 2c'));
+  assert.equal(oesd.outs, 8);
+  assert.equal(oesd.kind, 'Open-Ended Straight-Draw');
+});
+
+test('Small Blind gegen Big Blind all-in: Pot Odds statt Chart', () => {
+  const game = createGame(['A', 'B']);
+  game.button = 0;
+  game.players[1].stack = 2; // BB postet all-in
+  game.hand = null;
+  const hand = startHand(game);
+  hand.hole[0] = parseCards('7c 2d');
+  const ctx = buildContext(game, 0);
+  assert.equal(ctx.legal.canRaise, false);
+  const rec = recommend(ctx, { iters: 6000 });
+  assert.equal(rec.action, 'call', `72o braucht 25 % und hat ~32 %, war ${rec.action}`);
+  assert.ok(!rec.reasons.some((r) => r.includes('eröffne mit einem Raise')));
+});
+
+test('Range-Schätzung ignoriert Kombos mit Boardkarten', () => {
+  const game = createGame(['A', 'B']);
+  const hand = startHand(game);
+  hand.board = parseCards('Ah 7c 2d');
+  hand.street = 'flop';
+  hand.history.push({ street: 'flop', player: 1, type: 'bet', board: 3 });
+  const { range } = estimateRange(hand, 1);
+  const dead = new Set(hand.board);
+  assert.ok(range.length > 0);
+  assert.ok(range.every(([a, b]) => !dead.has(a) && !dead.has(b)));
+});
+
+test('Coach-Text für Premium-Hände', () => {
+  const game = createGame(['A', 'B']);
+  const hand = startHand(game);
+  hand.hole[hand.toAct] = parseCards('As Ad');
+  const rec = recommend(buildContext(game, hand.toAct), { iters: 200 });
+  assert.ok(rec.reasons[0].includes('besten 1 %'), rec.reasons[0]);
 });

@@ -2,7 +2,7 @@
 // Dieselbe Logik (mit anderen Parametern) steuert auch den KI-Gegner.
 import { legalActions, totalPot, BIG_BLIND } from './game.js';
 import { equityVsRange } from './equity.js';
-import { evaluate, categoryOf, hasFlushDraw, straightDrawRanks, CATEGORY } from './evaluator.js';
+import { evaluate, categoryOf, CATEGORY } from './evaluator.js';
 import { handClass, handPercentile, topRange, narrowRange, removeDead } from './ranges.js';
 
 export const DEFAULT_PARAMS = {
@@ -54,6 +54,7 @@ export function estimateRange(hand, p) {
   for (const h of hand.history) {
     if (h.street === 'preflop' || h.player !== p) continue;
     const board = hand.board.slice(0, h.board);
+    if (h.type === 'bet' || h.type === 'raise' || h.type === 'call') range = removeDead(range, board);
     if (h.type === 'bet') range = narrowRange(range, board, 0.6);
     else if (h.type === 'raise') range = narrowRange(range, board, 0.35);
     else if (h.type === 'call') range = narrowRange(range, board, 0.75);
@@ -61,20 +62,31 @@ export function estimateRange(hand, p) {
   return { range, preflopPct: ownPct, desc: `Top ${Math.round(ownPct * 100)} % der Starthände` };
 }
 
-/** Outs zu Straße oder besser (nur Flop/Turn). */
+/**
+ * Echte Draw-Outs (nur Flop/Turn): Karten, die dir eine Straße oder einen Flush geben,
+ * an dem mindestens eine deiner Karten beteiligt ist (Board-Draws zählen nicht).
+ */
 export function countOuts(hole, board) {
   if (board.length < 3 || board.length > 4) return { outs: 0, kind: '' };
   const cards = [...hole, ...board];
-  const now = categoryOf(evaluate(cards));
-  if (now >= CATEGORY.STRAIGHT) return { outs: 0, kind: '' };
+  if (categoryOf(evaluate(cards)) >= CATEGORY.STRAIGHT) return { outs: 0, kind: '' };
   const seen = new Set(cards);
   let outs = 0;
+  let flushOuts = 0;
+  const straightRanks = new Set();
   for (let c = 0; c < 52; c++) {
     if (seen.has(c)) continue;
-    if (categoryOf(evaluate([...cards, c])) >= CATEGORY.STRAIGHT) outs++;
+    const mine = evaluate([...cards, c]);
+    const cat = categoryOf(mine);
+    if (cat !== CATEGORY.STRAIGHT && cat !== CATEGORY.FLUSH && cat !== CATEGORY.STRAIGHT_FLUSH) continue;
+    // Nur wenn deine Karten mehr bringen als das Board allein
+    if (mine <= evaluate([...board, c])) continue;
+    outs++;
+    if (cat === CATEGORY.STRAIGHT) straightRanks.add(c >> 2);
+    else flushOuts++;
   }
-  const fd = hasFlushDraw(cards);
-  const sd = straightDrawRanks(cards);
+  const fd = flushOuts > 0;
+  const sd = straightRanks.size;
   let kind = '';
   if (fd && sd >= 2) kind = 'Flush-Draw + Open-Ender';
   else if (fd && sd === 1) kind = 'Flush-Draw + Gutshot';
@@ -142,7 +154,8 @@ export function recommend(ctx, params = DEFAULT_PARAMS) {
   const { hand, hole, board, legal } = ctx;
   const opp = 1 - ctx.player;
   const est = estimateRange(hand, opp);
-  const range = removeDead(est.range, [...hole, ...board]);
+  let range = removeDead(est.range, [...hole, ...board]);
+  if (range.length === 0) range = removeDead(topRange(est.preflopPct), [...hole, ...board]);
   const equity = equityVsRange(hole, board, range, P.iters);
   const toCall = legal.toCall;
   const potOdds = toCall > 0 ? toCall / (ctx.pot + toCall) : 0;
@@ -168,8 +181,8 @@ export function recommend(ctx, params = DEFAULT_PARAMS) {
 
   if (ctx.street === 'preflop') {
     const level = preflopLevel(hand);
-    reasons.push(`${cls} gehört zu den besten ${pct(pctl)} aller Starthände.`);
-    if (level === 1 && ctx.isButton && ctx.myBet < BIG_BLIND) {
+    reasons.push(`${cls} gehört zu den besten ${Math.max(1, Math.round(pctl * 100))} % aller Starthände.`);
+    if (level === 1 && ctx.isButton && ctx.myBet < BIG_BLIND && legal.canRaise && !ctx.oppAllIn) {
       // Small Blind, erste Aktion
       if (pctl <= P.sbOpen) {
         action = 'raise'; to = clampTo(ctx, 2.5 * BIG_BLIND);
@@ -187,7 +200,7 @@ export function recommend(ctx, params = DEFAULT_PARAMS) {
       }
     } else if (level === 1 && toCall === 0) {
       // Big Blind gegen Limp
-      if (pctl <= P.bbIso) {
+      if (legal.canRaise && pctl <= P.bbIso) {
         action = 'raise'; to = clampTo(ctx, 4 * BIG_BLIND);
         reasons.push('Der Gegner hat nur gelimpt (schwache Range). Mit einer starken Hand raist du auf ca. 4 Big Blinds für Value.');
         if (pctl > P.bbIso - 0.1) ok.add('check');
@@ -272,6 +285,13 @@ export function recommend(ctx, params = DEFAULT_PARAMS) {
       }
     }
   }
+  // Sicherheitsnetz: nie eine unmögliche Aktion empfehlen (z. B. Gegner schon all-in)
+  if (action === 'raise' && !legal.canRaise) {
+    action = toCall > 0 ? 'call' : 'check';
+    to = 0;
+    reasons.push('Erhöhen ist nicht mehr möglich (Gegner ist all-in oder dein Stack reicht nicht).');
+  }
+  if (!legal.canRaise) ok.delete('raise');
   ok.add(action);
 
   const evCall = toCall > 0 ? effEq * (ctx.pot + toCall) - toCall : null;
@@ -323,7 +343,10 @@ export function judge(rec, action, ctx) {
     verdict = 'ok';
   } else {
     verdict = 'bad';
-    if (type === 'fold') mistake = rec.mistakeIfFold;
+    if (type === 'fold' && ctx.legal.toCall === 0) {
+      mistake = 'Fold statt Check';
+      notes.push('Niemand hat gesetzt – Check kostet nichts. Folden ist hier nie besser, du gibst den Pot kampflos ab.');
+    } else if (type === 'fold') mistake = rec.mistakeIfFold;
     else if (type === 'call' && rec.action === 'fold') mistake = 'Zu loose gecallt';
     else if ((type === 'call' || type === 'check') && rec.action === 'raise') mistake = 'Zu passiv';
     else if (type === 'raise' && (rec.action === 'check' || rec.action === 'fold')) mistake = 'Zu aggressiv';

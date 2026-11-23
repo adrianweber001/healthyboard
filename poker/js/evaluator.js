@@ -159,21 +159,29 @@ export function bestFive(cards) {
   return bestSet;
 }
 
-/** Hat die Hand einen Flush-Draw (4 Karten einer Farbe, noch kein Flush)? */
-export function hasFlushDraw(cards) {
+/** Flush-Draw (4 Karten einer Farbe)? Mit hole: nur wenn eine eigene Karte dazugehört. */
+export function hasFlushDraw(cards, hole = null) {
   const sc = [0, 0, 0, 0];
   for (const c of cards) sc[suitOf(c)]++;
-  return sc.some((n) => n === 4);
+  return sc.some((n, s) => n === 4 && (!hole || hole.some((h) => suitOf(h) === s)));
 }
 
-/** Zählt Ränge, die eine Straße vervollständigen würden (2 = Open-Ender, 1 = Gutshot). */
-export function straightDrawRanks(cards) {
+/**
+ * Zählt Ränge, die eine Straße vervollständigen würden (2 = Open-Ender, 1 = Gutshot).
+ * Mit board: Ränge, die schon dem Board allein eine Straße geben, zählen nicht.
+ */
+export function straightDrawRanks(cards, board = null) {
   let mask = 0;
   for (const c of cards) mask |= 1 << rankOf(c);
   if (straightHigh(mask) >= 0) return 0;
+  let boardMask = 0;
+  if (board) for (const c of board) boardMask |= 1 << rankOf(c);
   let n = 0;
   for (let r = 0; r < 13; r++) {
-    if (!((mask >> r) & 1) && straightHigh(mask | (1 << r)) >= 0) n++;
+    if ((mask >> r) & 1) continue;
+    if (straightHigh(mask | (1 << r)) < 0) continue;
+    if (board && straightHigh(boardMask | (1 << r)) >= 0) continue;
+    n++;
   }
   return n;
 }

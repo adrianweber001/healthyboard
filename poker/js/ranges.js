@@ -76,8 +76,8 @@ export function postflopStrength(hole, board) {
   const cards = [hole[0], hole[1], ...board];
   let key = evaluate(cards);
   if (board.length < 5 && key < CATEGORY.STRAIGHT * B5) {
-    const fd = hasFlushDraw(cards);
-    const sd = straightDrawRanks(cards) >= 2;
+    const fd = hasFlushDraw(cards, hole);
+    const sd = straightDrawRanks(cards, board) >= 2;
     if (fd && sd) key = Math.max(key, COMBO_DRAW_KEY);
     else if (fd || sd) key = Math.max(key, DRAW_KEY);
   }

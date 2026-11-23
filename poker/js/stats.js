@@ -76,6 +76,7 @@ export function renderStats() {
     'Zu passiv': 'Mit starken Händen setzen und raisen – sonst bekommst du zu wenig Value.',
     'Zu aggressiv': 'Bluffs brauchen einen Grund (Draw, gute Story, Position). Mittelstarke Hände lieber checken.',
     'Überspielt': 'Nicht jede gute Hand ist ein Raise wert – oft ist Call besser, damit schwächere Hände im Pot bleiben.',
+    'Fold statt Check': 'Wenn niemand gesetzt hat, kannst du gratis checken – nie folden.',
     'Bet-Größe': 'Value-Bets meist ½ bis ⅔ Pot; zu kleine Bets geben Draws einen günstigen Preis.',
   };
 

@@ -91,7 +91,7 @@ export function legalActions(game, i = game.hand.toAct) {
   const minTo = Math.min(hand.currentBet + hand.minRaise, maxTo);
   return {
     player: i,
-    canFold: owe > 0,
+    canFold: true, // Folden ist immer erlaubt (auch wenn Check gratis wäre)
     canCheck: owe <= 0,
     canCall: owe > 0,
     toCall,
@@ -116,7 +116,6 @@ export function act(game, action) {
 
   let type = action.type;
   if (type === 'check' && !legal.canCheck) type = 'call';
-  if (type === 'fold' && !legal.canFold) type = 'check';
   if (type === 'raise' && !legal.canRaise) type = legal.canCheck ? 'check' : 'call';
 
   if (type === 'fold') {
