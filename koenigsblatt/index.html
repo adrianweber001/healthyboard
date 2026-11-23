@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Königsblatt · Poker ohne Glück</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+    <header class="kopf">
+        <div>
+            <h1>Königsblatt</h1>
+            <p class="unterzeile">Poker ohne Glück. Niemand mischt, niemand zieht.</p>
+        </div>
+        <div class="kopf-aktionen">
+            <label for="stufe">Gegner</label>
+            <select id="stufe">
+                <option value="2" selected>Stark</option>
+                <option value="1">Mittel</option>
+                <option value="0">Zufall</option>
+            </select>
+            <button type="button" class="leise" id="regeln-knopf">Regeln</button>
+            <button type="button" class="leise" id="neu">Neue Partie</button>
+        </div>
+    </header>
+
+    <section class="tisch" aria-label="Spieltisch">
+        <div class="rundenzeile">
+            <span id="runde"></span>
+            <span id="rundeninfo"></span>
+        </div>
+
+        <div class="seite">
+            <div class="seitenkopf">
+                <span class="name">Computer <span class="farbmarke rot">Rot</span></span>
+                <span class="marke" id="vorhand-1" hidden>Vorhand</span>
+                <span class="chips" id="chips-1"></span>
+            </div>
+            <div class="verdeckt" id="verdeckt-1" aria-label="Verdeckte Karten des Computers"></div>
+            <p class="blatt" id="blatt-1"></p>
+        </div>
+
+        <div class="mitte">
+            <div class="pot"><span>Pot</span><strong id="pot">0</strong></div>
+            <div class="tischkarten" id="tischkarten" aria-label="Offene Tischkarten"></div>
+        </div>
+
+        <div class="seite">
+            <div class="verdeckt" id="verdeckt-0" aria-label="Deine verdeckten Karten"></div>
+            <p class="blatt" id="blatt-0"></p>
+            <div class="seitenkopf">
+                <span class="name">Du <span class="farbmarke schwarz">Schwarz</span></span>
+                <span class="marke" id="vorhand-0" hidden>Vorhand</span>
+                <span class="chips" id="chips-0"></span>
+            </div>
+        </div>
+
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+        <div class="aktionen" id="aktionen"></div>
+    </section>
+
+    <section class="bereich">
+        <h2>Deine Hand</h2>
+        <div class="kartenraster" id="hand"></div>
+    </section>
+
+    <section class="bereich">
+        <h2>Das kann der Computer noch haben</h2>
+        <div class="kartenraster klein" id="gegnerkarten"></div>
+        <p class="hinweis" id="gegnerinfo"></p>
+    </section>
+
+    <details class="bereich protokoll" open>
+        <summary>Protokoll</summary>
+        <ol id="protokoll"></ol>
+    </details>
+</main>
+
+<dialog id="regeln" aria-labelledby="regeln-titel">
+    <h2 id="regeln-titel">Kurzregeln</h2>
+    <p><strong>Karten:</strong> Du hast alle schwarzen Karten (♠ ♣), der Computer alle roten (♥ ♦). Jeder hat jeden Wert genau zweimal. Es wird nie gemischt oder gezogen.</p>
+    <p><strong>Partie:</strong> 6 Runden, jeder startet mit 30 Chips. Wer am Ende mehr hat, gewinnt.</p>
+    <ol>
+        <li>Beide zahlen den Grundeinsatz (Runde 1–2: 1 Chip, 3–4: 2, 5–6: 3).</li>
+        <li>Beide legen gleichzeitig 2 Karten verdeckt.</li>
+        <li>Vorhand, dann Hinterhand legen je 1 Karte offen auf den Tisch. Wettrunde.</li>
+        <li>Noch einmal je 1 offene Karte. Wettrunde.</li>
+        <li>Showdown: bestes Fünfer-Blatt aus den eigenen 2 verdeckten und den 4 Tischkarten.</li>
+    </ol>
+    <p><strong>Wetten:</strong> Ein Einsatz darf höchstens so groß sein wie der Pot. Pro Runde riskiert jeder höchstens das Fünffache des Grundeinsatzes. Wer aussteigt, verliert den Pot; die verdeckten Karten beider Spieler bleiben dann geheim.</p>
+    <p><strong>Blätter:</strong> Vierling &gt; Full House &gt; Straße &gt; Drilling &gt; Zwei Paare &gt; Paar &gt; höchste Karte. Farben zählen nicht.</p>
+    <p><strong>Der Kern:</strong> Jede gespielte Karte ist für den Rest der Partie weg. Die Tischkarten gelten für beide.</p>
+    <p><a href="REGELN.md">Vollständiges Regelwerk</a></p>
+    <form method="dialog"><button type="submit">Schließen</button></form>
+</dialog>
+
+<script src="engine.js"></script>
+<script src="ki.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>

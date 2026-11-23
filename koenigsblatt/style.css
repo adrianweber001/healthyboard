@@ -1,0 +1,106 @@
+/* Systemschriften benötigen keine externen Downloads. */
+:root {
+    color-scheme: dark;
+    --filz: #12302b; --filz-hell: #1a443c; --rand: #2f6359; --text: #f4f0e6; --gedaempft: #b7c9c1;
+    --karte: #fbf8ef; --karte-rot: #b3261e; --karte-schwarz: #1b1e23; --gold: #e7bc54; --gold-dunkel: #2a2108;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text); background: #0c211e;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 50% 0, #1d4a41 0, #0c211e 70%); }
+main { width: min(860px, 100%); margin: auto; padding: 20px 16px 48px; }
+h1 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(28px, 6vw, 40px); margin: 0; letter-spacing: -.5px; }
+h2 { font-size: 15px; margin: 0 0 10px; color: var(--gedaempft); font-weight: 650; letter-spacing: .3px; }
+p { line-height: 1.55; }
+a { color: var(--gold); }
+
+.kopf { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; margin-bottom: 16px; }
+.unterzeile { margin: 2px 0 0; color: var(--gedaempft); font-size: 14px; }
+.kopf-aktionen { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.kopf-aktionen label { font-size: 13px; color: var(--gedaempft); }
+
+/* Alle Bedienelemente sind groß genug für den Finger. */
+button, select { font: inherit; font-size: 16px; min-height: 44px; border-radius: 10px; border: 1px solid var(--rand); padding: 8px 14px; cursor: pointer; }
+select { background: var(--filz); color: var(--text); }
+button { background: var(--gold); color: var(--gold-dunkel); border-color: var(--gold); font-weight: 650; }
+button.leise { background: transparent; color: var(--text); border-color: var(--rand); font-weight: 500; }
+button.gefahr { background: transparent; color: #ffb4a8; border-color: #8a4a41; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+.tisch, .bereich { background: var(--filz); border: 1px solid var(--rand); border-radius: 18px; padding: 16px; margin-bottom: 14px; }
+.tisch { background: linear-gradient(180deg, var(--filz-hell), var(--filz)); }
+.rundenzeile { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--gedaempft); margin-bottom: 12px; flex-wrap: wrap; }
+.rundenzeile span:first-child { color: var(--text); font-weight: 650; }
+
+.seite { display: grid; gap: 8px; justify-items: center; }
+.seitenkopf { display: flex; align-items: center; gap: 10px; width: 100%; }
+.name { font-weight: 650; }
+.farbmarke { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-left: 4px; }
+.farbmarke.rot { background: var(--karte-rot); color: #fff; }
+.farbmarke.schwarz { background: var(--karte-schwarz); color: #fff; border: 1px solid #555; }
+.marke { font-size: 12px; padding: 2px 8px; border-radius: 20px; border: 1px solid var(--gold); color: var(--gold); }
+.chips { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 650; display: inline-flex; align-items: center; gap: 6px; }
+.chips::before, .pot strong::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--gold); border: 2px dashed var(--gold-dunkel); display: inline-block; }
+.blatt { margin: 0; min-height: 21px; font-size: 14px; color: var(--gedaempft); text-align: center; }
+
+.verdeckt, .tischkarten { display: flex; gap: 8px; justify-content: center; min-height: 78px; }
+.mitte { display: grid; gap: 10px; justify-items: center; padding: 14px 0; margin: 12px 0; border-block: 1px dashed var(--rand); }
+.pot { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--gedaempft); }
+.pot strong { font-size: 22px; color: var(--text); font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 6px; }
+
+/* Spielkarte: Wert oben, Farbe unten. Rot und Schwarz zeigen zugleich den Besitzer. */
+.karte { width: 54px; height: 76px; border-radius: 8px; background: var(--karte); color: var(--karte-schwarz); border: 1px solid #cfc8b4;
+    display: grid; align-content: center; justify-items: center; gap: 0; padding: 0; min-height: 0; font-weight: 700; line-height: 1.05; box-shadow: 0 2px 6px #0006; }
+.karte .wert { font-size: 22px; }
+.karte .farbe { font-size: 20px; }
+.karte.rot { color: var(--karte-rot); }
+.karte.rueckseite { background: repeating-linear-gradient(45deg, #7a1f1a 0 6px, #94302a 6px 12px); border: 3px solid var(--karte); }
+.karte.rueckseite.schwarz { background: repeating-linear-gradient(45deg, #23272e 0 6px, #343a44 6px 12px); }
+.karte.platz { background: transparent; border: 2px dashed var(--rand); box-shadow: none; }
+.karte.geheim { outline: 2px dashed var(--gold); outline-offset: 2px; }
+
+.status { margin: 14px 0 10px; text-align: center; font-size: 16px; min-height: 25px; }
+.aktionen { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 44px; }
+.betrag { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--rand); border-radius: 10px; padding: 0 4px; }
+.betrag button { min-width: 44px; padding: 8px; background: transparent; color: var(--text); border: 0; }
+.betrag output { min-width: 34px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* 13 Werte nebeneinander, die zwei Karten eines Werts stehen übereinander. */
+.kartenraster { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 6px; }
+.wertspalte { display: grid; gap: 6px; }
+.kartenraster .karte { width: 100%; height: auto; aspect-ratio: 5 / 7; box-shadow: none; }
+.kartenraster button.karte { cursor: pointer; }
+.kartenraster button.karte:disabled { opacity: 1; cursor: default; }
+.kartenraster button.karte[aria-pressed="true"] { outline: 3px solid var(--gold); outline-offset: 1px; transform: translateY(-4px); }
+.kartenraster.waehlbar button.karte:not(:disabled):hover { outline: 2px solid var(--gold); }
+.kartenraster.klein .karte .wert { font-size: 15px; }
+.kartenraster.klein .karte .farbe { font-size: 13px; }
+.kartenraster.klein .karte.gespielt { background: transparent; color: #6f8a81; border: 1px dashed var(--rand); text-decoration: line-through; }
+.hinweis { margin: 10px 0 0; font-size: 13px; color: var(--gedaempft); }
+
+.protokoll summary { cursor: pointer; font-size: 15px; color: var(--gedaempft); font-weight: 650; min-height: 28px; }
+.protokoll ol { margin: 10px 0 0; padding: 0; list-style: none; max-height: 260px; overflow-y: auto; font-size: 14px; display: grid; gap: 4px; }
+.protokoll li.runde { color: var(--gold); font-weight: 650; margin-top: 6px; }
+.protokoll li.ergebnis { font-weight: 650; }
+
+dialog { width: min(560px, calc(100% - 32px)); border: 1px solid var(--rand); border-radius: 16px; background: var(--filz); color: var(--text); padding: 20px; }
+dialog::backdrop { background: #000a; }
+dialog h2 { font-size: 20px; color: var(--text); }
+dialog p, dialog li { font-size: 14px; }
+dialog ol { padding-left: 20px; }
+
+/* Auf dem Telefon: sieben Werte pro Zeile, damit jede Karte gut zu treffen ist. */
+@media (max-width: 640px) {
+    main { padding: 14px 16px 40px; }
+    .tisch, .bereich { padding: 12px; }
+    .kartenraster { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px 6px; }
+    .kartenraster.klein { grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 3px; }
+    .kartenraster.klein .wertspalte { gap: 3px; }
+    .kartenraster.klein .karte { border-radius: 4px; }
+    .kartenraster.klein .karte .wert { font-size: 11px; }
+    .kartenraster.klein .karte .farbe { font-size: 10px; }
+    .karte .wert { font-size: 19px; }
+    .karte .farbe { font-size: 17px; }
+}
+@media (prefers-reduced-motion: reduce) { .kartenraster button.karte[aria-pressed="true"] { transform: none; } }
