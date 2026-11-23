@@ -7,9 +7,23 @@ Das Lernsystem des Hold'em Coach im Design von AW Poker Pro (DE / EN / PL):
 - **Quiz:** Wer gewinnt?, Was habe ich?, Pot Odds, Preflop
 - **Statistik:** gute Entscheidungen, häufigste Fehler mit Tipp, VPIP/PFR
 
+## Variante A: eigene Netlify-Seite (am einfachsten)
+
+`aw-poker-pro-coach-netlify.zip` enthält die fertige Seite (`index.html` liegt ganz oben). In Netlify das Projekt **aw-poker-pro-coach** öffnen → **Deploys** → ZIP ins Upload-Feld ziehen. Danach läuft der Coach unter `https://aw-poker-pro-coach.netlify.app/`; „← Poker Pro“ führt zurück zu `aw-poker-pro.netlify.app`.
+
+Für den Menüpunkt „Coach“ in Poker Pro diese Zeile in Poker Pros `index.html` vor `</body>` einfügen:
+
+```html
+<script src="https://aw-poker-pro-coach.netlify.app/coach-link.js" defer></script>
+```
+
+Hinweis: Auf einer eigenen Domain kann der Coach die Spracheinstellung von Poker Pro nicht mitlesen – die Sprache wählt man dort einmal selbst (DE/EN/PL oben rechts).
+
+## Variante B: in den Poker-Pro-Quellcode einbauen
+
 Es ist ein eigenständiger Ordner, der unter `/coach/` läuft. Login, Ranked, Rangliste, Battle Pass, Lektionen und die `/api`-Funktion von Poker Pro werden **nicht** verändert.
 
-## 1. Ordner kopieren
+### 1. Ordner kopieren
 
 Den Ordner `coach/` aus dieser ZIP in das Poker-Pro-Projekt nach **`public/coach/`** kopieren:
 
@@ -28,7 +42,7 @@ aw-poker-pro/
 
 Vite kopiert alles aus `public/` unverändert in den Build. Danach ist der Coach unter `https://aw-poker-pro.netlify.app/coach/` erreichbar. Die Netlify-Weiterleitung `/* → /index.html` stört nicht, weil Netlify echte Dateien zuerst ausliefert.
 
-## 2. Link in der Navigation (optional, eine Zeile)
+### 2. Link in der Navigation (optional, eine Zeile)
 
 In Poker Pros **`index.html`** (Projektwurzel, nicht `public/`) vor `</body>` einfügen:
 
@@ -46,7 +60,7 @@ Alternativ kann der Link auch direkt im React-Code der Navigation (`nav.nav`) er
 
 Dann bitte einen normalen `<a>`-Link verwenden (kein `NavLink`), damit der Browser die Coach-Seite wirklich lädt.
 
-## 3. Bauen und hochladen
+### 3. Bauen und hochladen
 
 Wie bisher: `npm run build` bzw. Deploy über Netlify. Es kommen keine neuen Abhängigkeiten dazu.
 

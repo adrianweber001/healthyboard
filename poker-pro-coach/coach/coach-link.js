@@ -1,8 +1,11 @@
 // Fügt in der Navigation von AW Poker Pro einen Link „Coach“ ein (→ /coach/).
-// Einbinden in Poker Pros index.html:  <script src="/coach/coach-link.js" defer></script>
+// Einbinden in Poker Pros index.html:  <script src="https://aw-poker-pro-coach.netlify.app/coach-link.js" defer></script>
 (function () {
   'use strict';
   var LABELS = { de: 'Coach', en: 'Coach', pl: 'Trener' };
+  // Ziel = Ordner, aus dem dieses Skript geladen wurde (eigene Netlify-Seite oder /coach/ in Poker Pro)
+  var me = document.currentScript && document.currentScript.src;
+  var BASE = me ? new URL('./', me).href : '/coach/';
   function label() {
     var l = 'de';
     try { l = localStorage.getItem('awpp.lang') || l; } catch (e) { /* kein Speicher */ }
@@ -14,7 +17,7 @@
     var link = nav.querySelector('a[data-coach-link]');
     if (!link) {
       link = document.createElement('a');
-      link.href = '/coach/';
+      link.href = BASE;
       link.setAttribute('data-coach-link', '');
       // Hinter „Lernen“ einsortieren, sonst ans Ende
       var learn = nav.querySelector('a[href="/learn"]');
