@@ -21,15 +21,5 @@ function showTab(name) {
 $$('.tabs [role=tab]').forEach((b) => b.addEventListener('click', () => { showTab(b.dataset.tab); window.scrollTo({ top: 0 }); }));
 window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
 
-// Zoomen verhindern: Pinch-Gesten (iOS), Mehrfinger-Touch, Doppelklick sowie Strg + Mausrad / Strg + +/-/0
-const stop = (e) => e.preventDefault();
-['gesturestart', 'gesturechange', 'gestureend'].forEach((t) => document.addEventListener(t, stop, { passive: false }));
-document.addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
-document.addEventListener('dblclick', stop, { passive: false });
-window.addEventListener('wheel', (e) => { if (e.ctrlKey || e.metaKey) e.preventDefault(); }, { passive: false });
-window.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0', 'Add', 'Subtract'].includes(e.key)) e.preventDefault();
-});
-
 initTable(settings);
 showTab(location.hash.slice(1) || 'spielen');
