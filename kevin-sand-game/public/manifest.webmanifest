@@ -1,0 +1,11 @@
+{
+  "name": "Kevin muss Ägypten vom Sand befreien",
+  "short_name": "Kevin & Sand",
+  "lang": "de",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4bd6c",
+  "theme_color": "#f2a65a",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

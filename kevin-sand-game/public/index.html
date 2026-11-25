@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2a65a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Kevin & der Sand">
+  <meta name="description" content="Kevin muss in 30 Tagen für Cäsar ganz Ägypten vom Sand befreien. Das Idle-Game zur TikTok-Serie.">
+  <title>Kevin muss Ägypten vom Sand befreien</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <!-- Gemeinsame SVG-Definitionen (Farbverläufe), nicht display:none, damit Safari sie rendert -->
+  <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <radialGradient id="cg" cx="35%" cy="30%" r="75%">
+        <stop offset="0" stop-color="#fff6b0"/><stop offset=".45" stop-color="#ffcf2e"/><stop offset="1" stop-color="#d48a00"/>
+      </radialGradient>
+      <linearGradient id="duneg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffd98a"/><stop offset=".55" stop-color="#f0b45a"/><stop offset="1" stop-color="#d48f3a"/>
+      </linearGradient>
+      <clipPath id="caesar-clip"><circle cx="50" cy="50" r="45.5"/></clipPath>
+    </defs>
+  </svg>
+
+  <div id="app">
+    <!-- Ladebildschirm -->
+    <section id="screen-loading" class="screen active" aria-live="polite">
+      <div class="loading-box">
+        <div class="loading-coin" data-art="coin"></div>
+        <p id="loading-text">Wüste wird geladen …</p>
+      </div>
+    </section>
+
+    <!-- Login / Registrierung -->
+    <section id="screen-auth" class="screen">
+      <div class="auth-hero">
+        <div class="auth-scene">
+          <div class="auth-pyramids" data-art="pyramids"></div>
+          <div class="auth-kevin" data-art="kevin"></div>
+          <div class="auth-caesar" data-art="caesar"></div>
+        </div>
+        <h1>Kevin muss in <span class="hl">30 Tagen</span> für Cäsar ganz Ägypten vom Sand befreien</h1>
+        <p class="tagline">Das offizielle Spiel zur Serie. Schaufeln. Gold. Noch mehr Sand.</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="tabs" role="tablist">
+          <button type="button" class="tab active" data-tab="login" role="tab" aria-selected="true">Einloggen</button>
+          <button type="button" class="tab" data-tab="register" role="tab" aria-selected="false">Registrieren</button>
+        </div>
+        <form id="auth-form" novalidate>
+          <label class="field">
+            <span>Benutzername</span>
+            <input id="auth-user" name="username" type="text" inputmode="text" autocomplete="username"
+                   autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" required>
+          </label>
+          <label class="field">
+            <span>Passwort</span>
+            <input id="auth-pass" name="password" type="password" autocomplete="current-password" minlength="8" required>
+          </label>
+          <label class="field only-register">
+            <span>Passwort wiederholen</span>
+            <input id="auth-pass2" name="password2" type="password" autocomplete="new-password" minlength="8">
+          </label>
+          <p class="hint only-register">3–20 Zeichen: Buchstaben, Zahlen, Unterstrich. Passwort mindestens 8 Zeichen. Keine E-Mail nötig!</p>
+          <p id="auth-error" class="error" role="alert"></p>
+          <button type="submit" class="btn btn-primary" id="auth-submit">Einloggen</button>
+        </form>
+      </div>
+      <p class="demo-banner" id="demo-banner" hidden>Demo-Modus: Keine Supabase-Verbindung eingerichtet – Spielstände bleiben nur auf diesem Gerät.</p>
+    </section>
+
+    <!-- Spiel -->
+    <section id="screen-game" class="screen">
+      <header id="hud">
+        <div class="hud-row">
+          <div class="gold" aria-label="Goldstand">
+            <span class="coin" data-art="coin"></span>
+            <span id="gold" class="gold-value">0</span>
+          </div>
+          <button type="button" class="icon-btn" id="btn-mute" aria-label="Ton aus"></button>
+          <button type="button" class="icon-btn" id="btn-menu" aria-label="Menü" aria-expanded="false" data-icon="menu"></button>
+        </div>
+
+        <div class="progress" aria-label="Fortschritt">
+          <div id="day-badge" class="day-badge">TAG 1/30</div>
+          <div class="progress-main">
+            <div class="progress-label"><span>Sand entfernt:</span> <strong id="percent">0,000000000 %</strong></div>
+            <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+          </div>
+        </div>
+
+        <button type="button" id="btn-shop" class="shop-toggle" aria-expanded="false" aria-controls="shop">
+          <span>Upgrade-Shop</span>
+          <span class="shop-badge" id="shop-badge" hidden>0</span>
+          <span class="chev" aria-hidden="true">▾</span>
+        </button>
+
+        <div id="shop" class="dropdown shop" hidden>
+          <div id="shop-list" class="shop-list"></div>
+        </div>
+
+        <div id="menu" class="dropdown menu" hidden>
+          <p class="menu-user">Eingeloggt als <strong id="menu-username">–</strong></p>
+          <button type="button" class="menu-item" id="btn-leaderboard"><span data-icon="trophy"></span>Rangliste</button>
+          <button type="button" class="menu-item" id="btn-help"><span data-icon="help"></span>So geht's</button>
+          <button type="button" class="menu-item danger" id="btn-logout"><span data-icon="door"></span>Abmelden</button>
+        </div>
+      </header>
+
+      <main id="scene">
+        <div class="sky"></div>
+        <div class="stars"></div>
+        <div class="sun" id="sun"></div>
+        <div class="pyramids" data-art="pyramids"></div>
+        <div class="bg-camel-track"><button type="button" class="bg-camel" id="bg-camel" aria-label="Kamel" data-art="camel"></button></div>
+        <div class="ufo" id="ufo" hidden><div class="beam"></div><div class="ufo-art" data-art="ufo"></div><span class="count" id="ufo-count"></span></div>
+        <div class="ground"></div>
+
+        <div class="caesar">
+          <div class="caesar-bust" data-art="caesar"></div>
+          <div class="bubble" id="bubble" aria-live="polite"></div>
+        </div>
+
+        <div class="fan" id="fan" hidden><div data-art="fan"></div><span class="count" id="fan-count"></span></div>
+        <div class="helper-camel" id="helper-camel" hidden data-art="helperCamel"></div>
+
+        <button type="button" class="dune" id="dune" aria-label="Sand schaufeln">
+          <span class="dune-art" data-art="dune"></span>
+          <span class="dune-hint" id="dune-hint">Tippe auf die Düne!</span>
+        </button>
+
+        <div class="kevin" id="kevin" data-art="kevin"></div>
+
+        <button type="button" class="bagger" id="bagger" hidden aria-label="Bagger">
+          <span class="bagger-art" data-art="bagger"></span>
+          <span class="count" id="bagger-count"></span>
+          <span class="stuck-label" id="stuck-label">Steckt fest!<br>Tippen zum Befreien</span>
+        </button>
+
+        <button type="button" class="storm-btn" id="storm-btn" hidden>
+          <span class="storm-icon" data-icon="storm"></span>
+          <span class="storm-text" id="storm-text">Sandsturm</span>
+          <span class="storm-cd" id="storm-cd"></span>
+        </button>
+
+        <div class="storm-overlay" aria-hidden="true"></div>
+        <div class="zzz" aria-hidden="true"><span>Z</span><span>z</span><span>z</span></div>
+        <div id="fx" aria-hidden="true"></div>
+
+        <div class="night-card" id="night-card" hidden>
+          <p id="night-text">Die Sonne geht unter. Kevin schläft erschöpft im Sand ein …</p>
+          <button type="button" class="btn btn-primary" id="btn-newday">Neuer Tag ☀</button>
+        </div>
+      </main>
+
+      <footer id="statsbar">
+        <span>Pro Tipp: <b id="per-tap">1</b></span>
+        <span>Pro Sek.: <b id="per-sec">0</b></span>
+        <span id="save-status" class="save-status"></span>
+      </footer>
+    </section>
+
+    <div id="modal" class="modal" hidden>
+      <div class="modal-card" role="dialog" aria-modal="true">
+        <div id="modal-content"></div>
+      </div>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+</body>
+</html>
